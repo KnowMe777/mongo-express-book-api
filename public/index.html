@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Books REST API Tester</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #1a1a2e;
+        color: #eee;
+        padding: 20px;
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #e94560;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .section {
+        background: #16213e;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+
+      .section h2 {
+        color: #e94560;
+        margin-bottom: 15px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        color: #aaa;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #333;
+        border-radius: 5px;
+        background: #0f3460;
+        color: #eee;
+        font-size: 14px;
+      }
+
+      button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        margin-right: 10px;
+        margin-bottom: 10px;
+      }
+
+      .btn-get {
+        background: #4caf50;
+        color: white;
+      }
+      .btn-post {
+        background: #2196f3;
+        color: white;
+      }
+      .btn-put {
+        background: #ff9800;
+        color: white;
+      }
+      .btn-delete {
+        background: #f44336;
+        color: white;
+      }
+      .btn-search {
+        background: #9c27b0;
+        color: white;
+      }
+
+      button:hover {
+        opacity: 0.9;
+      }
+
+      #response {
+        background: #0a0a23;
+        border: 1px solid #333;
+        border-radius: 5px;
+        padding: 15px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-family: "Courier New", monospace;
+        font-size: 14px;
+        min-height: 100px;
+        max-height: 400px;
+        overflow-y: auto;
+        color: #0f0;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .form-row-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>📚 Books REST API Tester</h1>
+
+      <!-- GET ALL BOOKS -->
+      <div class="section">
+        <h2>📖 GET All Books</h2>
+        <button class="btn-get" onclick="getAllBooks()">GET /api/books</button>
+      </div>
+
+      <!-- GET SINGLE BOOK -->
+      <div class="section">
+        <h2>🔍 GET Single Book</h2>
+        <label>Book ID:</label>
+        <input
+          type="text"
+          id="getBookId"
+          placeholder="Enter MongoDB _id (e.g. 665abc1234def567890ghijk)"
+        />
+        <button class="btn-get" onclick="getBookById()">
+          GET /api/books/:id
+        </button>
+      </div>
+
+      <!-- SEARCH BY TITLE -->
+      <div class="section">
+        <h2>🔎 Search Books by Title</h2>
+        <label>Search Keyword:</label>
+        <input
+          type="text"
+          id="searchTitle"
+          placeholder="e.g. harry, gatsby, the..."
+        />
+        <button class="btn-search" onclick="searchBooks()">
+          GET /api/books/search?title=
+        </button>
+      </div>
+
+      <!-- FILTER BY GENRE -->
+      <div class="section">
+        <h2>🏷️ Get Books by Genre</h2>
+        <label>Select Genre:</label>
+        <select id="filterGenre">
+          <option value="">-- Select Genre --</option>
+          <option value="Fiction">Fiction</option>
+          <option value="Non-Fiction">Non-Fiction</option>
+          <option value="Science">Science</option>
+          <option value="History">History</option>
+          <option value="Fantasy">Fantasy</option>
+          <option value="Romance">Romance</option>
+          <option value="Thriller">Thriller</option>
+          <option value="Mystery">Mystery</option>
+          <option value="Horror">Horror</option>
+          <option value="Biography">Biography</option>
+          <option value="Self-Help">Self-Help</option>
+          <option value="Poetry">Poetry</option>
+          <option value="Drama">Drama</option>
+          <option value="Adventure">Adventure</option>
+          <option value="Comedy">Comedy</option>
+          <option value="Philosophy">Philosophy</option>
+          <option value="Technology">Technology</option>
+          <option value="Children">Children</option>
+        </select>
+        <button class="btn-get" onclick="getByGenre()">
+          GET /api/books/genre/:genre
+        </button>
+      </div>
+
+      <!-- CREATE BOOK -->
+      <div class="section">
+        <h2>➕ POST Create Book</h2>
+        <div class="form-row">
+          <div>
+            <label>Title:</label>
+            <input
+              type="text"
+              id="postTitle"
+              placeholder="Book title (min 3 chars)"
+            />
+          </div>
+          <div>
+            <label>Author:</label>
+            <input type="text" id="postAuthor" placeholder="Author name" />
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div>
+            <label>Year:</label>
+            <input type="number" id="postYear" placeholder="e.g. 1997" />
+          </div>
+          <div>
+            <label>Pages:</label>
+            <input type="number" id="postPages" placeholder="e.g. 309" />
+          </div>
+          <div>
+            <label>Price:</label>
+            <input
+              type="number"
+              id="postPrice"
+              placeholder="e.g. 15.99"
+              step="0.01"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Genre:</label>
+            <select id="postGenre">
+              <option value="">-- Select Genre --</option>
+              <option value="Fiction">Fiction</option>
+              <option value="Non-Fiction">Non-Fiction</option>
+              <option value="Science">Science</option>
+              <option value="History">History</option>
+              <option value="Fantasy">Fantasy</option>
+              <option value="Romance">Romance</option>
+              <option value="Thriller">Thriller</option>
+              <option value="Mystery">Mystery</option>
+              <option value="Horror">Horror</option>
+              <option value="Biography">Biography</option>
+              <option value="Self-Help">Self-Help</option>
+              <option value="Poetry">Poetry</option>
+              <option value="Drama">Drama</option>
+              <option value="Adventure">Adventure</option>
+              <option value="Comedy">Comedy</option>
+              <option value="Philosophy">Philosophy</option>
+              <option value="Technology">Technology</option>
+              <option value="Children">Children</option>
+            </select>
+          </div>
+          <div>
+            <label>In Stock:</label>
+            <select id="postInStock">
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-post" onclick="createBook()">POST /api/books</button>
+      </div>
+
+      <!-- UPDATE BOOK -->
+      <div class="section">
+        <h2>✏️ PUT Update Book</h2>
+        <label>Book ID to Update:</label>
+        <input type="text" id="putBookId" placeholder="Enter MongoDB _id" />
+        <div class="form-row">
+          <div>
+            <label>Title:</label>
+            <input type="text" id="putTitle" placeholder="New title" />
+          </div>
+          <div>
+            <label>Author:</label>
+            <input type="text" id="putAuthor" placeholder="New author" />
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div>
+            <label>Year:</label>
+            <input type="number" id="putYear" placeholder="New year" />
+          </div>
+          <div>
+            <label>Pages:</label>
+            <input type="number" id="putPages" placeholder="New pages" />
+          </div>
+          <div>
+            <label>Price:</label>
+            <input
+              type="number"
+              id="putPrice"
+              placeholder="New price"
+              step="0.01"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Genre:</label>
+            <select id="putGenre">
+              <option value="">-- Select Genre --</option>
+              <option value="Fiction">Fiction</option>
+              <option value="Non-Fiction">Non-Fiction</option>
+              <option value="Science">Science</option>
+              <option value="History">History</option>
+              <option value="Fantasy">Fantasy</option>
+              <option value="Romance">Romance</option>
+              <option value="Thriller">Thriller</option>
+              <option value="Mystery">Mystery</option>
+              <option value="Horror">Horror</option>
+              <option value="Biography">Biography</option>
+              <option value="Self-Help">Self-Help</option>
+              <option value="Poetry">Poetry</option>
+              <option value="Drama">Drama</option>
+              <option value="Adventure">Adventure</option>
+              <option value="Comedy">Comedy</option>
+              <option value="Philosophy">Philosophy</option>
+              <option value="Technology">Technology</option>
+              <option value="Children">Children</option>
+            </select>
+          </div>
+          <div>
+            <label>In Stock:</label>
+            <select id="putInStock">
+              <option value="">-- No Change --</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-put" onclick="updateBook()">
+          PUT /api/books/:id
+        </button>
+      </div>
+
+      <!-- DELETE BOOK -->
+      <div class="section">
+        <h2>🗑️ DELETE Book</h2>
+        <label>Book ID:</label>
+        <input type="text" id="deleteBookId" placeholder="Enter MongoDB _id" />
+        <button class="btn-delete" onclick="deleteBook()">
+          DELETE /api/books/:id
+        </button>
+      </div>
+
+      <!-- RESPONSE OUTPUT -->
+      <div class="section">
+        <h2>📋 Response</h2>
+        <div id="response">Waiting for request...</div>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = "/api/books";
+
+      function showResponse(data, status) {
+        const responseBox = document.getElementById("response");
+        responseBox.textContent = `Status: ${status}\n\n${JSON.stringify(data, null, 2)}`;
+      }
+
+      // GET all books
+      async function getAllBooks() {
+        try {
+          const res = await fetch(API_URL);
+          const data = await res.json();
+          showResponse(data, res.status);
+        } catch (err) {
+          showResponse({ error: err.message }, "Error");
+        }
+      }
+
+      // GET book by ID
+      async function getBookById() {
+        const id = document.getElementById("getBookId").value.trim();
+        if (!id) return alert("Please enter a book ID");
+
+        try {
+          const res = await fetch(`${API_URL}/${id}`);
+          const data = await res.json();
+          showResponse(data, res.status);
+        } catch (err) {
+          showResponse({ error: err.message }, "Error");
+        }
+      }
+
+      // SEARCH books by title
+      async function searchBooks() {
+        const title = document.getElementById("searchTitle").value.trim();
+        if (!title) return alert("Please enter a search keyword");
+
+        try {
+          const res = await fetch(
+            `${API_URL}/search?title=${encodeURIComponent(title)}`,
+          );
+          const data = await res.json();
+          showResponse(data, res.status);
+        } catch (err) {
+          showResponse({ error: err.message }, "Error");
+        }
+      }
+
+      // GET books by genre
+      async function getByGenre() {
+        const genre = document.getElementById("filterGenre").value;
+        if (!genre) return alert("Please select a genre");
+
+        try {
+          const res = await fetch(
+            `${API_URL}/genre/${encodeURIComponent(genre)}`,
+          );
+          const data = await res.json();
+          showResponse(data, res.status);
+        } catch (err) {
+          showResponse({ error: err.message }, "Error");
+        }
+      }
+
+      // POST create a book
+      async function createBook() {
+        const title = document.getElementById("postTitle").value.trim();
+        const author = document.getElementById("postAuthor").value.trim();
+        const genre = document.getElementById("postGenre").value;
+        const yearValue = document.getElementById("postYear").value;
+        const pagesValue = document.getElementById("postPages").value;
+        const priceValue = document.getElementById("postPrice").value;
+        const inStock = document.getElementById("postInStock").value;
+
+        if (
+          !title ||
+          !author ||
+          !genre ||
+          !yearValue ||
+          !pagesValue ||
+          !priceValue
+        ) {
+          return alert("All fields are required");
+        }
+
+        const book = {
+          title,
+          author,
+          genre,
+          year: Number(yearValue),
+          pages: Number(pagesValue),
+          price: Number(priceValue),
+          inStock: inStock === "true",
+        };
+
+        try {
+          const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(book),
+          });
+          const data = await res.json();
+          showResponse(data, res.status);
+        } catch (err) {
+          showResponse({ error: err.message }, "Error");
+        }
+      }
+
+      // PUT update a book
+      async function updateBook() {
+        const id = document.getElementById("putBookId").value.trim();
+        if (!id) return alert("Please enter a book ID");
+
+        const book = {};
+
+        const title = document.getElementById("putTitle").value.trim();
+        const author = document.getElementById("putAuthor").value.trim();
+        const genre = document.getElementById("putGenre").value;
+        const yearValue = document.getElementById("putYear").value;
+        const pagesValue = document.getElementById("putPages").value;
+        const priceValue = document.getElementById("putPrice").value;
+        const inStock = document.getElementById("putInStock").value;
+
+        // Only include fields that have values (partial update)
+        if (title) book.title = title;
+        if (author) book.author = author;
+        if (genre) book.genre = genre;
+        if (yearValue) book.year = Number(yearValue);
+        if (pagesValue) book.pages = Number(pagesValue);
+        if (priceValue) book.price = Number(priceValue);
+        if (inStock) book.inStock = inStock === "true";
+
+        if (Object.keys(book).length === 0) {
+          return alert("Please fill at least one field to update");
+        }
+
+        try {
+          const res = await fetch(`${API_URL}/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(book),
+          });
+          const data = await res.json();
+          showResponse(data, res.status);
+        } catch (err) {
+          showResponse({ error: err.message }, "Error");
+        }
+      }
+
+      // DELETE a book
+      async function deleteBook() {
+        const id = document.getElementById("deleteBookId").value.trim();
+        if (!id) return alert("Please enter a book ID");
+
+        try {
+          const res = await fetch(`${API_URL}/${id}`, {
+            method: "DELETE",
+          });
+          const data = await res.json();
+          showResponse(data, res.status);
+        } catch (err) {
+          showResponse({ error: err.message }, "Error");
+        }
+      }
+    </script>
+  </body>
+</html>
